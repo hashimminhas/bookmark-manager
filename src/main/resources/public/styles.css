@@ -4,6 +4,7 @@
     --secondary-color: #64748b;
     --success-color: #10b981;
     --danger-color: #ef4444;
+    --warning-color: #f59e0b;
     --bg-color: #f8fafc;
     --card-bg: #ffffff;
     --border-color: #e2e8f0;
@@ -27,11 +28,12 @@ body {
 }
 
 .container {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 2rem 1rem;
 }
 
+/* Header */
 header {
     text-align: center;
     margin-bottom: 2rem;
@@ -40,6 +42,7 @@ header {
 header h1 {
     font-size: 2.5rem;
     margin-bottom: 0.5rem;
+    color: var(--primary-color);
 }
 
 header p {
@@ -52,32 +55,36 @@ header p {
     gap: 1rem;
     margin-bottom: 2rem;
     flex-wrap: wrap;
+    align-items: center;
 }
 
-#searchInput {
+.toolbar input[type="text"],
+.toolbar select {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 1rem;
     flex: 1;
     min-width: 200px;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    font-size: 1rem;
 }
 
-#filterStatus {
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    background-color: white;
-    cursor: pointer;
+.toolbar input[type="text"]:focus,
+.toolbar select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* Buttons */
-.btn-primary, .btn-secondary, .btn-danger {
+.btn-primary,
+.btn-secondary,
+.btn-action,
+.btn-danger {
     padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 0.5rem;
     font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -89,6 +96,14 @@ header p {
 
 .btn-primary:hover {
     background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-primary:disabled {
+    background-color: var(--secondary-color);
+    cursor: not-allowed;
+    transform: none;
 }
 
 .btn-secondary {
@@ -98,6 +113,20 @@ header p {
 
 .btn-secondary:hover {
     background-color: #475569;
+}
+
+.btn-action {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.btn-action:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
 }
 
 .btn-danger {
@@ -111,19 +140,25 @@ header p {
     background-color: #dc2626;
 }
 
-/* Form */
+/* Form Container */
 .form-container {
     background-color: var(--card-bg);
-    padding: 2rem;
     border-radius: 0.75rem;
-    box-shadow: var(--shadow-lg);
+    padding: 2rem;
     margin-bottom: 2rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.form-container.hidden {
+    display: none;
 }
 
 .form-container h2 {
     margin-bottom: 1.5rem;
+    color: var(--primary-color);
 }
 
+/* Form Groups */
 .form-group {
     margin-bottom: 1.5rem;
 }
@@ -132,6 +167,7 @@ header p {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
+    color: var(--text-primary);
 }
 
 .form-group input,
@@ -145,124 +181,200 @@ header p {
     font-family: inherit;
 }
 
-.form-group textarea {
-    resize: vertical;
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Form Actions */
 .form-actions {
     display: flex;
     gap: 1rem;
+    margin-top: 2rem;
 }
 
-/* Bookmarks List */
-.bookmarks-list {
-    display: grid;
-    gap: 1rem;
+/* Bookmarks Container */
+#bookmarksContainer {
+    margin-top: 2rem;
 }
 
+/* Bookmark Card */
 .bookmark-card {
     background-color: var(--card-bg);
-    padding: 1.5rem;
     border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
     box-shadow: var(--shadow);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.2s;
+    border-left: 4px solid var(--warning-color);
+}
+
+.bookmark-card.inbox {
+    border-left-color: var(--warning-color);
+}
+
+.bookmark-card.done {
+    border-left-color: var(--success-color);
+    opacity: 0.8;
 }
 
 .bookmark-card:hover {
-    transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
 }
 
+/* Bookmark Header */
 .bookmark-header {
     display: flex;
     justify-content: space-between;
-    align-items: start;
+    align-items: flex-start;
     margin-bottom: 0.75rem;
 }
 
 .bookmark-title {
+    margin: 0 0 0.5rem 0;
     font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
 }
 
+.bookmark-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.bookmark-title a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+/* Bookmark Status */
+.bookmark-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-inbox {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-done {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+/* Bookmark URL */
 .bookmark-url {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.bookmark-url a {
     color: var(--primary-color);
     text-decoration: none;
     word-break: break-all;
 }
 
-.bookmark-url:hover {
+.bookmark-url a:hover {
     text-decoration: underline;
 }
 
-.bookmark-description {
-    color: var(--text-secondary);
-    margin-top: 0.75rem;
+.url-icon {
+    flex-shrink: 0;
 }
 
+/* Bookmark Tags */
+.bookmark-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.tag {
+    background-color: #eff6ff;
+    color: #1e40af;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Bookmark Notes */
+.bookmark-notes {
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    background-color: var(--bg-color);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.bookmark-notes p {
+    margin: 0;
+}
+
+/* Bookmark Meta */
 .bookmark-meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 1rem;
-    padding-top: 1rem;
+    margin-bottom: 1rem;
+    padding-top: 0.75rem;
     border-top: 1px solid var(--border-color);
 }
 
-.bookmark-status {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
+.bookmark-meta small {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    margin-right: 1rem;
 }
 
-.status-INBOX {
-    background-color: #dbeafe;
-    color: #1e40af;
-}
-
-.status-DONE {
-    background-color: #d1fae5;
-    color: #065f46;
-}
-
+/* Bookmark Actions */
 .bookmark-actions {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
-.btn-edit, .btn-delete {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-edit {
-    background-color: var(--secondary-color);
-    color: white;
-}
-
-.btn-edit:hover {
-    background-color: #475569;
-}
-
-.btn-delete {
-    background-color: var(--danger-color);
-    color: white;
-}
-
-.btn-delete:hover {
-    background-color: #dc2626;
-}
-
-.bookmark-date {
-    font-size: 0.875rem;
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
     color: var(--text-secondary);
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+}
+
+.error-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--danger-color);
 }
 
 /* Toast Notification */
@@ -271,25 +383,35 @@ header p {
     bottom: 2rem;
     right: 2rem;
     padding: 1rem 1.5rem;
-    background-color: var(--text-primary);
-    color: white;
     border-radius: 0.5rem;
     box-shadow: var(--shadow-lg);
+    font-weight: 500;
     z-index: 1000;
     animation: slideIn 0.3s ease-out;
 }
 
+.toast.hidden {
+    display: none;
+}
+
 .toast.success {
     background-color: var(--success-color);
+    color: white;
 }
 
 .toast.error {
     background-color: var(--danger-color);
+    color: white;
+}
+
+.toast.info {
+    background-color: var(--primary-color);
+    color: white;
 }
 
 @keyframes slideIn {
     from {
-        transform: translateX(400px);
+        transform: translateX(100%);
         opacity: 0;
     }
     to {
@@ -298,33 +420,8 @@ header p {
     }
 }
 
-/* Utility Classes */
-.hidden {
-    display: none !important;
-}
-
-.loading {
-    text-align: center;
-    color: var(--text-secondary);
-    padding: 2rem;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 3rem 1rem;
-}
-
-.empty-state h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.empty-state p {
-    color: var(--text-secondary);
-}
-
 /* Responsive Design */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .container {
         padding: 1rem;
     }
@@ -337,20 +434,30 @@ header p {
         flex-direction: column;
     }
 
-    .bookmark-header {
-        flex-direction: column;
-    }
-
-    .bookmark-actions {
-        margin-top: 1rem;
+    .toolbar input,
+    .toolbar select {
+        width: 100%;
     }
 
     .form-actions {
         flex-direction: column;
     }
 
+    .form-actions button {
+        width: 100%;
+    }
+
+    .bookmark-actions {
+        flex-direction: column;
+    }
+
+    .bookmark-actions button {
+        width: 100%;
+    }
+
     .toast {
         left: 1rem;
         right: 1rem;
+        bottom: 1rem;
     }
 }

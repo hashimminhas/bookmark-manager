@@ -1,15 +1,20 @@
 package com.hashim.repository;
 
-import com.hashim.model.Bookmark;
-import com.hashim.model.BookmarkStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hashim.model.Bookmark;
+import com.hashim.model.BookmarkStatus;
 
 public class BookmarkRepository {
     private static final Logger logger = LoggerFactory.getLogger(BookmarkRepository.class);
@@ -209,11 +214,11 @@ public class BookmarkRepository {
 
     private Bookmark mapResultSetToBookmark(ResultSet rs) throws SQLException {
         Bookmark bookmark = new Bookmark();
+        bookmark.setId(rs.getLong("id"));
         bookmark.setUrl(rs.getString("url"));
         bookmark.setTitle(rs.getString("title"));
         bookmark.setTags(rs.getString("tags"));
-        bookmark.setNotes(rs.getString("notes
-        bookmark.setDescription(rs.getString("description"));
+        bookmark.setNotes(rs.getString("notes"));
         bookmark.setStatus(BookmarkStatus.valueOf(rs.getString("status")));
         bookmark.setCreatedAt(LocalDateTime.parse(rs.getString("created_at")));
         bookmark.setUpdatedAt(LocalDateTime.parse(rs.getString("updated_at")));

@@ -15,6 +15,7 @@ import com.hashim.model.BookmarkStatus;
 import com.hashim.repository.BookmarkQueryRepository;
 import com.hashim.repository.BookmarkRepository;
 import com.hashim.util.UrlValidator;
+import com.hashim.util.ValidationUtils;
 
 public class BookmarkService {
     private static final Logger logger = LoggerFactory.getLogger(BookmarkService.class);
@@ -27,13 +28,17 @@ public class BookmarkService {
     }
 
     public Bookmark createBookmark(CreateBookmarkRequest request) {
-        validateCreateRequest(request);
+        // Validate and normalize all fields
+        String normalizedUrl = UrlValidator.normalizeAndValidate(request.getUrl());
+        String normalizedTitle = ValidationUtils.validateAndNormalizeTitle(request.getTitle());
+        String normalizedTags = ValidationUtils.validateAndNormalizeTags(request.getTags());
+        String normalizedNotes = ValidationUtils.validateAndNormalizeNotes(request.getNotes());
         
         Bookmark bookmark = new Bookmark();
-        bookmark.setUrl(request.getUrl());
-        bookmark.setTitle(request.getTitle());
-        bookmark.setTags(request.getTags() != null ? request.getTags() : "");
-        bookmark.setNotes(request.getNotes() != null ? request.getNotes() : "");
+        bookmark.setUrl(normalizedUrl);
+        bookmark.setTitle(normalizedTitle);
+        bookmark.setTags(normalizedTags);
+        bookmark.setNotes(normalizedNotes);
         bookmark.setStatus(BookmarkStatus.INBOX); // Default status
         
         return bookmarkRepository.create(bookmark);
@@ -65,7 +70,10 @@ public class BookmarkService {
             throw new ValidationException("Order must be asc or desc");
         }
         
-        // Validate pagination
+        // Validate pagination parameters
+        ValidationUtils.validatePositive(limit, "limit");
+        ValidationUtils.validateNonNegative(offset, "offset");
+        
         int actualLimit = (limit != null && limit > 0) ? Math.min(limit, 1000) : 100;
         int actualOffset = (offset != null && offset >= 0) ? offset : 0;
         
@@ -100,14 +108,19 @@ public class BookmarkService {
     }
 
     public Bookmark updateBookmark(Long id, UpdateBookmarkRequest request) {
-        validateUpdateRequest(request);
+        // Validate and normalize all fields
+        String normalizedUrl = UrlValidator.normalizeAndValidate(request.getUrl());
+        String normalizedTitle = ValidationUtils.validateAndNormalizeTitle(request.getTitle());
+        String normalizedTags = ValidationUtils.validateAndNormalizeTags(request.getTags());
+        String normalizedNotes = ValidationUtils.validateAndNormalizeNotes(request.getNotes());
+        ValidationUtils.validateStatus(request.getStatus());
         
         Bookmark bookmark = getBookmarkById(id); // Will throw NotFoundException if not found
         
-        bookmark.setUrl(request.getUrl());
-        bookmark.setTitle(request.getTitle());
-        bookmark.setTags(request.getTags() != null ? request.getTags() : "");
-        bookmark.setNotes(request.getNotes() != null ? request.getNotes() : "");
+        bookmark.setUrl(normalizedUrl);
+        bookmark.setTitle(normalizedTitle);
+        bookmark.setTags(normalizedTags);
+        bookmark.setNotes(normalizedNotes);
         
         try {
             BookmarkStatus status = BookmarkStatus.valueOf(request.getStatus().toUpperCase());
@@ -120,9 +133,7 @@ public class BookmarkService {
     }
     
     public Bookmark updateBookmarkStatus(Long id, UpdateStatusRequest request) {
-        if (request.getStatus() == null || request.getStatus().trim().isEmpty()) {
-            throw new ValidationException("Status cannot be empty");
-        }
+        ValidationUtils.validateStatus(request.getStatus());
         
         Bookmark bookmark = getBookmarkById(id);
         
@@ -140,41 +151,5 @@ public class BookmarkService {
         if (!bookmarkRepository.delete(id)) {
             throw new NotFoundException("Bookmark not found with id: " + id);
         }
-    }
-
-    private void validateCreateRequest(CreateBookmarkRequest request) {
-        if (request.getUrl() == null || request.getUrl().trim().isEmpty()) {
-            throw new ValidationException("URL cannot be empty");
-        }
-        
-        if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
-            throw new ValidationException("Title cannot be empty");
-        }
-        
-        if (request.getTitle().length() > 255) {
-            throw new ValidationException("Title cannot exceed 255 characters");
-        }
-        
-        UrlValidator.validate(request.getUrl());
-    }
-
-    private void validateUpdateRequest(UpdateBookmarkRequest request) {
-        if (request.getUrl() == null || request.getUrl().trim().isEmpty()) {
-            throw new ValidationException("URL cannot be empty");
-        }
-        
-        if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
-            throw new ValidationException("Title cannot be empty");
-        }
-        
-        if (request.getTitle().length() > 255) {
-            throw new ValidationException("Title cannot exceed 255 characters");
-        }
-        
-        if (request.getStatus() == null || request.getStatus().trim().isEmpty()) {
-            throw new ValidationException("Status cannot be empty");
-        }
-        
-        UrlValidator.validate(request.getUrl());
     }
 }

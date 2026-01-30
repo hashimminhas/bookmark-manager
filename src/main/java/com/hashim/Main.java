@@ -9,8 +9,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hashim.config.AppConfig;
 import com.hashim.controller.BookmarkController;
-import com.hashim.repository.BookmarkRepository;
 import com.hashim.repository.BookmarkQueryRepository;
+import com.hashim.repository.BookmarkRepository;
 import com.hashim.repository.DatabaseInitializer;
 import com.hashim.service.BookmarkService;
 
@@ -59,13 +59,6 @@ public class Main {
             // Default content type
             javalinConfig.http.defaultContentType = "application/json";
             
-            // Enable CORS for local development
-            javalinConfig.plugins.enableCors(cors -> {
-                cors.add(it -> {
-                    it.anyHost();
-                });
-            });
-            
             // Configure JSON mapper with Gson
             javalinConfig.jsonMapper(new JsonMapper() {
                 @Override
@@ -79,6 +72,16 @@ public class Main {
                 }
             });
         }).start(config.getServerPort());
+        
+        // Enable CORS for local development
+        app.before(ctx -> {
+            ctx.header("Access-Control-Allow-Origin", "*");
+            ctx.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+            ctx.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        });
+        
+        // Handle OPTIONS requests for CORS preflight
+        app.options("/*", ctx -> ctx.status(204));
         
         // Register routes
         bookmarkController.registerRoutes(app);

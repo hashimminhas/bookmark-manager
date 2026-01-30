@@ -16,8 +16,9 @@
         <!-- Search and Filter Bar -->
         <div class="toolbar">
             <input type="text" id="searchInput" placeholder="Search bookmarks..." />
+            <input type="text" id="tagFilter" placeholder="Filter by tag..." />
             <select id="filterStatus">
-                <option value="">All Bookmarks</option>
+                <option value="">All Status</option>
                 <option value="INBOX">Inbox</option>
                 <option value="DONE">Done</option>
             </select>
@@ -31,23 +32,54 @@
                 <input type="hidden" id="bookmarkId" />
                 
                 <div class="form-group">
-                    <label for="title">Title *</label>
-                    <input type="text" id="title" required maxlength="255" />
-                </div>
-
-                <div class="form-group">
                     <label for="url">URL *</label>
-                    <input type="url" id="url" required placeholder="https://example.com" />
+                    <input type="text" id="url" required placeholder="example.com or https://example.com" />
+                    <small>Tip: Just enter "example.com" - https:// will be added automatically</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea id="description" rows="3"></textarea>
+                    <label for="title">Title * (1-120 chars)</label>
+                    <input type="text" id="title" required maxlength="120" />
                 </div>
 
-                <div class="form-group" id="statusGroup" style="display: none;">
+                <div class="form-group">
+                    <label for="tags">Tags (max 200 chars)</label>
+                    <input type="text" id="tags" placeholder="java, spring, tutorial" maxlength="200" />
+                    <small>Comma-separated tags</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes (optional)</label>
+                    <textarea id="notes" rows="3" placeholder="Additional notes about this bookmark..."></textarea>
+                </div>
+
+                <div class="form-group" id="statusGroup">
                     <label for="status">Status</label>
                     <select id="status">
+                        <option value="INBOX">Inbox</option>
+                        <option value="DONE">Done</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" id="submitBtn">Add Bookmark</button>
+                    <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bookmarks List -->
+        <div id="bookmarksContainer">
+            <div id="bookmarksList"></div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast hidden"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
                         <option value="INBOX">Inbox</option>
                         <option value="DONE">Done</option>
                     </select>
