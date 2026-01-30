@@ -1,33 +1,37 @@
-# Build artifacts
-.gradle/
+# Build outputs
 build/
-target/
-*.class
-*.jar
-*.war
-*.ear
+.gradle/
+*.log
 
-# IDE
+# IDE files
 .idea/
 .vscode/
 *.iml
-*.ipr
 *.iws
+*.ipr
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
-# Logs
-logs/
-*.log
+# Git
+.git/
+.gitignore
+.gitattributes
 
-# Database
+# Documentation (optional - remove if you want docs in image)
+*.md
+LICENSE
+
+# Database files (will be in volume)
 *.db
 *.db-journal
 
-# Gradle
-.gradle
+# Test files
+src/test/
+
+# Gradle wrapper jar (already in image)
+.gradle-wrapper/
 gradle-wrapper.properties
 
 # Git

@@ -1,49 +1,51 @@
-# Stage 1: Build
-FROM gradle:8.5-jdk21 AS build
+# Multi-stage Dockerfile for Bookmark Manager
+# Stage 1: Build the application
+FROM gradle:8.5-jdk21 AS builder
 
 WORKDIR /app
 
-# Copy gradle files
-COPY build.gradle.kts settings.gradle.kts ./
+# Copy Gradle wrapper and build files
 COPY gradle gradle
+COPY gradlew gradlew.bat build.gradle.kts settings.gradle.kts ./
 
-# Download dependencies
-RUN gradle dependencies --no-daemon
+# Download dependencies (cached layer)
+RUN ./gradlew dependencies --no-daemon
 
 # Copy source code
 COPY src src
 
 # Build the application
-RUN gradle clean jar --no-daemon
+RUN ./gradlew build --no-daemon -x test
 
 # Stage 2: Runtime
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
 
-# Create non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# Install curl for health check
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# Copy the JAR from build stage
-COPY --from=build /app/build/libs/*.jar app.jar
-
-# Create directory for database and logs
-RUN mkdir -p /app/data /app/logs && \
+# Create non-root user and data directory
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser && \
+    mkdir -p /app/data && \
     chown -R appuser:appgroup /app
+
+# Copy the built JAR from builder stage
+COPY --from=builder /app/build/libs/*.jar app.jar
 
 # Switch to non-root user
 USER appuser
 
-# Environment variables
-ENV SERVER_PORT=7070
-ENV DATABASE_URL=jdbc:sqlite:/app/data/bookmarks.db
+# Environment variables with defaults
+ENV PORT=8888
+ENV DB_URL=jdbc:sqlite:/app/data/bookmarks.db
 
-# Expose port
-EXPOSE 7070
+# Expose the port
+EXPOSE 8888
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:7070/ || exit 1
+  CMD curl -f http://localhost:${PORT}/health || exit 1
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
