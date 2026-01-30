@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmark Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Bookmark Manager</h1>
+            <p>Organize your bookmarks efficiently</p>
+        </header>
+
+        <!-- Search and Filter Bar -->
+        <div class="toolbar">
+            <input type="text" id="searchInput" placeholder="Search bookmarks..." />
+            <select id="filterStatus">
+                <option value="">All Bookmarks</option>
+                <option value="INBOX">Inbox</option>
+                <option value="DONE">Done</option>
+            </select>
+            <button id="addBookmarkBtn" class="btn-primary">+ Add Bookmark</button>
+        </div>
+
+        <!-- Add/Edit Bookmark Form -->
+        <div id="bookmarkFormContainer" class="form-container hidden">
+            <h2 id="formTitle">Add New Bookmark</h2>
+            <form id="bookmarkForm">
+                <input type="hidden" id="bookmarkId" />
+                
+                <div class="form-group">
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" required maxlength="255" />
+                </div>
+
+                <div class="form-group">
+                    <label for="url">URL *</label>
+                    <input type="url" id="url" required placeholder="https://example.com" />
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" rows="3"></textarea>
+                </div>
+
+                <div class="form-group" id="statusGroup" style="display: none;">
+                    <label for="status">Status</label>
+                    <select id="status">
+                        <option value="INBOX">Inbox</option>
+                        <option value="DONE">Done</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Save</button>
+                    <button type="button" id="cancelBtn" class="btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bookmarks List -->
+        <div id="bookmarksList" class="bookmarks-list">
+            <p class="loading">Loading bookmarks...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
