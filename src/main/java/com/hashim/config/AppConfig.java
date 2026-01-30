@@ -40,14 +40,28 @@ public class AppConfig {
     }
 
     private void overrideWithEnvVars() {
-        String port = System.getenv("SERVER_PORT");
+        // Check PORT env var (common in cloud platforms)
+        String port = System.getenv("PORT");
         if (port != null) {
             properties.setProperty("server.port", port);
         }
         
-        String dbUrl = System.getenv("DATABASE_URL");
+        // Check SERVER_PORT env var
+        String serverPort = System.getenv("SERVER_PORT");
+        if (serverPort != null) {
+            properties.setProperty("server.port", serverPort);
+        }
+        
+        // Check DB_URL env var
+        String dbUrl = System.getenv("DB_URL");
         if (dbUrl != null) {
             properties.setProperty("database.url", dbUrl);
+        }
+        
+        // Check DATABASE_URL env var
+        String databaseUrl = System.getenv("DATABASE_URL");
+        if (databaseUrl != null) {
+            properties.setProperty("database.url", databaseUrl);
         }
     }
 

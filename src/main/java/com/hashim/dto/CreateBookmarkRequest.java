@@ -1,25 +1,19 @@
 package com.hashim.dto;
 
 public class CreateBookmarkRequest {
-    private String title;
     private String url;
-    private String description;
+    private String title;
+    private String tags;
+    private String notes;
 
     public CreateBookmarkRequest() {
     }
 
-    public CreateBookmarkRequest(String title, String url, String description) {
-        this.title = title;
+    public CreateBookmarkRequest(String url, String title, String tags, String notes) {
         this.url = url;
-        this.description = description;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
         this.title = title;
+        this.tags = tags;
+        this.notes = notes;
     }
 
     public String getUrl() {
@@ -30,11 +24,27 @@ public class CreateBookmarkRequest {
         this.url = url;
     }
 
-    public String getDescription() {
-        return description;
+    public String getTitle() {
+        return title;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 }

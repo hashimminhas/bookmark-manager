@@ -4,9 +4,10 @@ import java.time.LocalDateTime;
 
 public class Bookmark {
     private Long id;
-    private String title;
     private String url;
-    private String description;
+    private String title;
+    private String tags;
+    private String notes;
     private BookmarkStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -14,12 +15,13 @@ public class Bookmark {
     public Bookmark() {
     }
 
-    public Bookmark(Long id, String title, String url, String description, 
+    public Bookmark(Long id, String url, String title, String tags, String notes,
                     BookmarkStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
-        this.title = title;
         this.url = url;
-        this.description = description;
+        this.title = title;
+        this.tags = tags;
+        this.notes = notes;
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -50,12 +52,20 @@ public class Bookmark {
         this.url = url;
     }
 
-    public String getDescription() {
-        return description;
+    public String getTags() {
+        return tags;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public BookmarkStatus getStatus() {
@@ -86,8 +96,9 @@ public class Bookmark {
     public String toString() {
         return "Bookmark{" +
                 "id=" + id +
-                ", title='" + title + '\'' +
                 ", url='" + url + '\'' +
+                ", title='" + title + '\'' +
+                ", tags='" + tags + '\'' +
                 ", status=" + status +
                 ", createdAt=" + createdAt +
                 '}';

@@ -1,33 +1,39 @@
 package com.hashim.service;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hashim.dto.CreateBookmarkRequest;
 import com.hashim.dto.UpdateBookmarkRequest;
+import com.hashim.dto.UpdateStatusRequest;
 import com.hashim.exception.NotFoundException;
 import com.hashim.exception.ValidationException;
 import com.hashim.model.Bookmark;
 import com.hashim.model.BookmarkStatus;
+import com.hashim.repository.BookmarkQueryRepository;
 import com.hashim.repository.BookmarkRepository;
 import com.hashim.util.UrlValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class BookmarkService {
     private static final Logger logger = LoggerFactory.getLogger(BookmarkService.class);
     private final BookmarkRepository bookmarkRepository;
+    private final BookmarkQueryRepository queryRepository;
 
-    public BookmarkService(BookmarkRepository bookmarkRepository) {
+    public BookmarkService(BookmarkRepository bookmarkRepository, BookmarkQueryRepository queryRepository) {
         this.bookmarkRepository = bookmarkRepository;
+        this.queryRepository = queryRepository;
     }
 
     public Bookmark createBookmark(CreateBookmarkRequest request) {
         validateCreateRequest(request);
         
         Bookmark bookmark = new Bookmark();
-        bookmark.setTitle(request.getTitle());
         bookmark.setUrl(request.getUrl());
-        bookmark.setDescription(request.getDescription());
+        bookmark.setTitle(request.getTitle());
+        bookmark.setTags(request.getTags() != null ? request.getTags() : "");
+        bookmark.setNotes(request.getNotes() != null ? request.getNotes() : "");
         bookmark.setStatus(BookmarkStatus.INBOX); // Default status
         
         return bookmarkRepository.create(bookmark);
@@ -35,6 +41,41 @@ public class BookmarkService {
 
     public List<Bookmark> getAllBookmarks() {
         return bookmarkRepository.findAll();
+    }
+    
+    public List<Bookmark> getBookmarksWithFilters(String searchQuery, String statusStr, String tag,
+                                                   String sortBy, String order, Integer limit, Integer offset) {
+        // Validate and parse status
+        BookmarkStatus status = null;
+        if (statusStr != null && !statusStr.trim().isEmpty()) {
+            try {
+                status = BookmarkStatus.valueOf(statusStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new ValidationException("Invalid status: " + statusStr + ". Must be INBOX or DONE");
+            }
+        }
+        
+        // Validate sort field
+        if (sortBy != null && !isValidSortField(sortBy)) {
+            throw new ValidationException("Sort field must be one of: created_at, updated_at, title");
+        }
+        
+        // Validate order
+        if (order != null && !order.equalsIgnoreCase("asc") && !order.equalsIgnoreCase("desc")) {
+            throw new ValidationException("Order must be asc or desc");
+        }
+        
+        // Validate pagination
+        int actualLimit = (limit != null && limit > 0) ? Math.min(limit, 1000) : 100;
+        int actualOffset = (offset != null && offset >= 0) ? offset : 0;
+        
+        return queryRepository.findWithFilters(searchQuery, status, tag, sortBy, order, actualLimit, actualOffset);
+    }
+    
+    private boolean isValidSortField(String field) {
+        return "created_at".equalsIgnoreCase(field) || 
+               "updated_at".equalsIgnoreCase(field) || 
+               "title".equalsIgnoreCase(field);
     }
 
     public Bookmark getBookmarkById(Long id) {
@@ -63,9 +104,27 @@ public class BookmarkService {
         
         Bookmark bookmark = getBookmarkById(id); // Will throw NotFoundException if not found
         
-        bookmark.setTitle(request.getTitle());
         bookmark.setUrl(request.getUrl());
-        bookmark.setDescription(request.getDescription());
+        bookmark.setTitle(request.getTitle());
+        bookmark.setTags(request.getTags() != null ? request.getTags() : "");
+        bookmark.setNotes(request.getNotes() != null ? request.getNotes() : "");
+        
+        try {
+            BookmarkStatus status = BookmarkStatus.valueOf(request.getStatus().toUpperCase());
+            bookmark.setStatus(status);
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException("Invalid status: " + request.getStatus() + ". Must be INBOX or DONE");
+        }
+        
+        return bookmarkRepository.update(bookmark);
+    }
+    
+    public Bookmark updateBookmarkStatus(Long id, UpdateStatusRequest request) {
+        if (request.getStatus() == null || request.getStatus().trim().isEmpty()) {
+            throw new ValidationException("Status cannot be empty");
+        }
+        
+        Bookmark bookmark = getBookmarkById(id);
         
         try {
             BookmarkStatus status = BookmarkStatus.valueOf(request.getStatus().toUpperCase());
@@ -84,6 +143,10 @@ public class BookmarkService {
     }
 
     private void validateCreateRequest(CreateBookmarkRequest request) {
+        if (request.getUrl() == null || request.getUrl().trim().isEmpty()) {
+            throw new ValidationException("URL cannot be empty");
+        }
+        
         if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
             throw new ValidationException("Title cannot be empty");
         }
@@ -96,6 +159,10 @@ public class BookmarkService {
     }
 
     private void validateUpdateRequest(UpdateBookmarkRequest request) {
+        if (request.getUrl() == null || request.getUrl().trim().isEmpty()) {
+            throw new ValidationException("URL cannot be empty");
+        }
+        
         if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
             throw new ValidationException("Title cannot be empty");
         }

@@ -20,18 +20,19 @@ public class BookmarkRepository {
     }
 
     public Bookmark create(Bookmark bookmark) {
-        String sql = "INSERT INTO bookmarks (title, url, description, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO bookmarks (url, title, tags, notes, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = databaseInitializer.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             
             LocalDateTime now = LocalDateTime.now();
-            pstmt.setString(1, bookmark.getTitle());
-            pstmt.setString(2, bookmark.getUrl());
-            pstmt.setString(3, bookmark.getDescription());
-            pstmt.setString(4, bookmark.getStatus().name());
-            pstmt.setString(5, now.toString());
+            pstmt.setString(1, bookmark.getUrl());
+            pstmt.setString(2, bookmark.getTitle());
+            pstmt.setString(3, bookmark.getTags() != null ? bookmark.getTags() : "");
+            pstmt.setString(4, bookmark.getNotes() != null ? bookmark.getNotes() : "");
+            pstmt.setString(5, bookmark.getStatus().name());
             pstmt.setString(6, now.toString());
+            pstmt.setString(7, now.toString());
             
             int affectedRows = pstmt.executeUpdate();
             
@@ -109,7 +110,7 @@ public class BookmarkRepository {
     }
 
     public List<Bookmark> search(String query) {
-        String sql = "SELECT * FROM bookmarks WHERE title LIKE ? OR url LIKE ? OR description LIKE ? ORDER BY created_at DESC";
+        String sql = "SELECT * FROM bookmarks WHERE url LIKE ? OR title LIKE ? OR tags LIKE ? OR notes LIKE ? ORDER BY created_at DESC";
         
         try (Connection conn = databaseInitializer.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -118,6 +119,7 @@ public class BookmarkRepository {
             pstmt.setString(1, searchPattern);
             pstmt.setString(2, searchPattern);
             pstmt.setString(3, searchPattern);
+            pstmt.setString(4, searchPattern);
             
             List<Bookmark> bookmarks = new ArrayList<>();
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -135,18 +137,19 @@ public class BookmarkRepository {
     }
 
     public Bookmark update(Bookmark bookmark) {
-        String sql = "UPDATE bookmarks SET title = ?, url = ?, description = ?, status = ?, updated_at = ? WHERE id = ?";
+        String sql = "UPDATE bookmarks SET url = ?, title = ?, tags = ?, notes = ?, status = ?, updated_at = ? WHERE id = ?";
         
         try (Connection conn = databaseInitializer.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             LocalDateTime now = LocalDateTime.now();
-            pstmt.setString(1, bookmark.getTitle());
-            pstmt.setString(2, bookmark.getUrl());
-            pstmt.setString(3, bookmark.getDescription());
-            pstmt.setString(4, bookmark.getStatus().name());
-            pstmt.setString(5, now.toString());
-            pstmt.setLong(6, bookmark.getId());
+            pstmt.setString(1, bookmark.getUrl());
+            pstmt.setString(2, bookmark.getTitle());
+            pstmt.setString(3, bookmark.getTags() != null ? bookmark.getTags() : "");
+            pstmt.setString(4, bookmark.getNotes() != null ? bookmark.getNotes() : "");
+            pstmt.setString(5, bookmark.getStatus().name());
+            pstmt.setString(6, now.toString());
+            pstmt.setLong(7, bookmark.getId());
             
             int affectedRows = pstmt.executeUpdate();
             
@@ -206,9 +209,10 @@ public class BookmarkRepository {
 
     private Bookmark mapResultSetToBookmark(ResultSet rs) throws SQLException {
         Bookmark bookmark = new Bookmark();
-        bookmark.setId(rs.getLong("id"));
-        bookmark.setTitle(rs.getString("title"));
         bookmark.setUrl(rs.getString("url"));
+        bookmark.setTitle(rs.getString("title"));
+        bookmark.setTags(rs.getString("tags"));
+        bookmark.setNotes(rs.getString("notes
         bookmark.setDescription(rs.getString("description"));
         bookmark.setStatus(BookmarkStatus.valueOf(rs.getString("status")));
         bookmark.setCreatedAt(LocalDateTime.parse(rs.getString("created_at")));

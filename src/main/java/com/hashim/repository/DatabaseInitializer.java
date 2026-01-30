@@ -1,12 +1,12 @@
 package com.hashim.repository;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatabaseInitializer {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseInitializer.class);
@@ -20,24 +20,34 @@ public class DatabaseInitializer {
         try (Connection conn = DriverManager.getConnection(databaseUrl);
              Statement stmt = conn.createStatement()) {
             
-            // Create bookmarks table
+            // Create bookmarks table with updated schema
             String createTableSql = """
                 CREATE TABLE IF NOT EXISTS bookmarks (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    title TEXT NOT NULL,
                     url TEXT NOT NULL,
-                    description TEXT,
-                    status TEXT NOT NULL DEFAULT 'INBOX',
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    title TEXT NOT NULL,
+                    tags TEXT DEFAULT '',
+                    notes TEXT DEFAULT '',
+                    status TEXT NOT NULL DEFAULT 'INBOX' CHECK (status IN ('INBOX', 'DONE')),
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
                 """;
             
             stmt.execute(createTableSql);
             
-            // Create index on status for faster filtering
-            String createIndexSql = "CREATE INDEX IF NOT EXISTS idx_bookmarks_status ON bookmarks(status)";
-            stmt.execute(createIndexSql);
+            // Create indexes for performance
+            String createStatusIndex = "CREATE INDEX IF NOT EXISTS idx_bookmarks_status ON bookmarks(status)";
+            stmt.execute(createStatusIndex);
+            
+            String createCreatedAtIndex = "CREATE INDEX IF NOT EXISTS idx_bookmarks_created_at ON bookmarks(created_at DESC)";
+            stmt.execute(createCreatedAtIndex);
+            
+            String createTagsIndex = "CREATE INDEX IF NOT EXISTS idx_bookmarks_tags ON bookmarks(tags)";
+            stmt.execute(createTagsIndex);
+            
+            String createCompositeIndex = "CREATE INDEX IF NOT EXISTS idx_bookmarks_status_created ON bookmarks(status, created_at DESC)";
+            stmt.execute(createCompositeIndex);
             
             logger.info("Database initialized successfully");
             
