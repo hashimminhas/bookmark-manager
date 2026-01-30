@@ -1,53 +1,23 @@
-# 📚 Bookmark Manager
+# Bookmark Manager
 
-A production-ready bookmark management application built with Java, Javalin, and SQLite. Features a clean REST API and a responsive frontend for organizing and managing your bookmarks efficiently.
+A lightweight bookmark management application with a REST API and web UI for organizing and searching bookmarks.
 
-## 🚀 Features
+## Features
 
-- **CRUD Operations**: Create, read, update, and delete bookmarks
-- **Status Workflow**: Organize bookmarks with INBOX/DONE statuses
-- **Search & Filter**: Find bookmarks by keyword or filter by status
-- **URL Validation**: Automatic validation of bookmark URLs
-- **Responsive UI**: Clean, modern interface that works on all devices
-- **RESTful API**: Well-structured REST endpoints
-- **Error Handling**: Comprehensive error handling and validation
-- **Docker Support**: Containerized deployment ready
+- Create, read, update, and delete bookmarks
+- Search by keyword and filter by status (INBOX/DONE)
+- URL normalization and validation
+- Tag and note support
+- Responsive web interface
+- RESTful API with JSON responses
 
-## 🏗️ Architecture
+## Tech Stack
 
-```
-bookmark-manager/
-├── src/main/java/com/hashim/
-│   ├── Main.java                      # Application entry point
-│   ├── config/
-│   │   └── AppConfig.java             # Configuration management
-│   ├── model/
-│   │   ├── Bookmark.java              # Domain model
-│   │   └── BookmarkStatus.java        # Status enum (INBOX/DONE)
-│   ├── repository/
-│   │   ├── BookmarkRepository.java    # Data access layer
-│   │   └── DatabaseInitializer.java   # Database setup
-│   ├── service/
-│   │   └── BookmarkService.java       # Business logic
-│   ├── controller/
-│   │   └── BookmarkController.java    # REST API endpoints
-│   ├── dto/
-│   │   ├── CreateBookmarkRequest.java
-│   │   └── UpdateBookmarkRequest.java
-│   ├── exception/
-│   │   ├── ValidationException.java
-│   │   └── NotFoundException.java
-│   └── util/
-│       └── UrlValidator.java          # URL validation utility
-└── src/main/resources/
-    ├── public/
-    │   ├── index.html                 # Frontend UI
-    │   ├── app.js                     # JavaScript logic
-    │   └── styles.css                 # Styling
-    └── application.properties         # Configuration file
-```
-
-## 🛠️ Technology Stack
+- **Backend**: Java 21, Javalin 6.1.3
+- **Database**: SQLite 3.45.0
+- **Frontend**: Vanilla JavaScript, HTML5, CSS3
+- **Build Tool**: Gradle 9.0
+- **Deployment**: Docker (multi-stage build)
 
 **Backend:**
 - Java 21
@@ -77,269 +47,156 @@ bookmark-manager/
    ```bash
    cd bookmark-manager
    ```
+## API Overview
 
-2. **Build the project**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/bookmarks` | List all bookmarks |
+| GET | `/api/bookmarks?status=INBOX` | Filter by status |
+| GET | `/api/bookmarks?search=keyword` | Search bookmarks |
+| GET | `/api/bookmarks/{id}` | Get specific bookmark |
+| POST | `/api/bookmarks` | Create bookmark |
+| PUT | `/api/bookmarks/{id}` | Update bookmark |
+| DELETE | `/api/bookmarks/{id}` | Delete bookmark |
+
+## Running Locally
+
+### Prerequisites
+- Java 21 or higher
+- Gradle (wrapper included)
+
+### Steps
+
+1. Clone and navigate to the project:
    ```bash
-   ./gradlew build
-   ```
-   
-   On Windows:
-   ```bash
-   gradlew.bat build
+   git clone <repository-url>
+   cd bookmark-manager
    ```
 
-3. **Run the application**
+2. Run the application:
    ```bash
    ./gradlew run
    ```
    
-   Or using Java directly:
+   Windows:
    ```bash
-   java -jar build/libs/bookmark-manager-1.0-SNAPSHOT.jar
+   gradlew.bat run
    ```
 
-4. **Access the application**
-   
-   Open your browser and navigate to: `http://localhost:7070`
+3. Access the application at `http://localhost:8888`
 
-### Docker Deployment
+### Custom Configuration
 
-1. **Build the Docker image**
-   ```bash
-   docker build -t bookmark-manager .
-   ```
-
-2. **Run the container**
-   ```bash
-   docker run -d \
-     -p 7070:7070 \
-     -v $(pwd)/data:/app/data \
-     --name bookmark-manager \
-     bookmark-manager
-   ```
-
-3. **View logs**
-   ```bash
-   docker logs -f bookmark-manager
-   ```
-
-4. **Stop the container**
-   ```bash
-   docker stop bookmark-manager
-   docker rm bookmark-manager
-   ```
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-- `SERVER_PORT` - Server port (default: 7070)
-- `DATABASE_URL` - Database connection string (default: jdbc:sqlite:bookmarks.db)
-
-### Application Properties
-
-Edit `src/main/resources/application.properties`:
-
-```properties
-server.port=7070
-database.url=jdbc:sqlite:bookmarks.db
-```
-
-## 📡 API Endpoints
-
-### Get All Bookmarks
-```http
-GET /api/bookmarks
-```
-
-### Get Bookmarks by Status
-```http
-GET /api/bookmarks?status=INBOX
-GET /api/bookmarks?status=DONE
-```
-
-### Search Bookmarks
-```http
-GET /api/bookmarks?search=github
-```
-
-### Get Bookmark by ID
-```http
-GET /api/bookmarks/{id}
-```
-
-### Create Bookmark
-```http
-POST /api/bookmarks
-Content-Type: application/json
-
-{
-  "title": "GitHub",
-  "url": "https://github.com",
-  "description": "Code hosting platform"
-}
-```
-
-### Update Bookmark
-```http
-PUT /api/bookmarks/{id}
-Content-Type: application/json
-
-{
-  "title": "GitHub",
-  "url": "https://github.com",
-  "description": "Code hosting platform",
-  "status": "DONE"
-}
-```
-
-### Delete Bookmark
-```http
-DELETE /api/bookmarks/{id}
-```
-
-## 🧪 Testing the API
-
-Using curl:
-
+Set environment variables:
 ```bash
-# Create a bookmark
-curl -X POST http://localhost:7070/api/bookmarks \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Example","url":"https://example.com","description":"Test bookmark"}'
-
-# Get all bookmarks
-curl http://localhost:7070/api/bookmarks
-
-# Search bookmarks
-curl http://localhost:7070/api/bookmarks?search=example
-
-# Filter by status
-curl http://localhost:7070/api/bookmarks?status=INBOX
-
-# Update a bookmark
-curl -X PUT http://localhost:7070/api/bookmarks/1 \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Updated","url":"https://example.com","description":"Updated","status":"DONE"}'
-
-# Delete a bookmark
-curl -X DELETE http://localhost:7070/api/bookmarks/1
-```
-
-## 📝 Database Schema
-
-```sql
-CREATE TABLE bookmarks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    url TEXT NOT NULL,
-    description TEXT,
-    status TEXT NOT NULL DEFAULT 'INBOX',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX idx_bookmarks_status ON bookmarks(status);
-```
-
-## 🔒 Error Handling
-
-The API returns appropriate HTTP status codes:
-
-- `200 OK` - Successful GET/PUT requests
-- `201 Created` - Successful POST requests
-- `204 No Content` - Successful DELETE requests
-- `400 Bad Request` - Validation errors
-- `404 Not Found` - Resource not found
-- `500 Internal Server Error` - Server errors
-
-Error response format:
-```json
-{
-  "error": "Error message description"
-}
-```
-
-## 🎨 Frontend Features
-
-- **Responsive Design** - Works on desktop, tablet, and mobile
-- **Real-time Search** - Debounced search with 300ms delay
-- **Status Filtering** - Quick filter by INBOX/DONE
-- **Toast Notifications** - User feedback for all actions
-- **Inline Editing** - Edit bookmarks without page reload
-- **Delete Confirmation** - Prevents accidental deletions
-- **Time-based Formatting** - Relative timestamps (e.g., "2 hours ago")
-
-## 📊 Logging
-
-Logs are stored in `logs/bookmark-manager.log` with 30-day rotation.
-
-Log levels:
-- `INFO` - Application lifecycle and operations
-- `WARN` - Validation errors, not found errors
-- `ERROR` - Unexpected errors and exceptions
-
-## 🔧 Development
-
-### Build Commands
-
-```bash
-# Clean build
-./gradlew clean build
-
-# Run application
+# Linux/Mac
+export PORT=9000
+export DB_URL=jdbc:sqlite:data/bookmarks.db
 ./gradlew run
 
-# Build JAR
-./gradlew jar
-
-# Run tests
-./gradlew test
+# Windows PowerShell
+$env:PORT='9000'
+$env:DB_URL='jdbc:sqlite:data/bookmarks.db'
+.\gradlew.bat run
 ```
 
-### Project Structure
+## Running with Docker
 
-- **Model Layer**: Domain entities (Bookmark, BookmarkStatus)
-- **Repository Layer**: Data access using JDBC
-- **Service Layer**: Business logic and validation
-- **Controller Layer**: REST API endpoints
-- **DTO Layer**: Request/response objects
-- **Exception Layer**: Custom exceptions
-- **Util Layer**: Helper utilities (URL validation)
+### Build and Run
 
-## 🐛 Troubleshooting
-
-### Port already in use
 ```bash
-# Change port via environment variable
-export SERVER_PORT=8080
-./gradlew run
+# Build image
+docker build -t bookmark-manager:latest .
+
+# Run with persistent storage
+docker run -d \
+  --name bookmark-manager \
+  -p 8888:8888 \
+  -v bookmark-data:/app/data \
+  bookmark-manager:latest
 ```
 
-### Database locked
+### Custom Configuration
+
 ```bash
-# Stop all instances and delete the lock file
-rm bookmarks.db-journal
+docker run -d \
+  --name bookmark-manager \
+  -p 9000:9000 \
+  -e PORT=9000 \
+  -e DB_URL=jdbc:sqlite:/app/data/bookmarks.db \
+  -v bookmark-data:/app/data \
+  bookmark-manager:latest
 ```
 
-### Build fails
+### Management
+
 ```bash
-# Clean and rebuild
-./gradlew clean build --refresh-dependencies
+# View logs
+docker logs -f bookmark-manager
+
+# Stop
+docker stop bookmark-manager
+
+# Remove
+docker rm bookmark-manager
 ```
 
-## 📄 License
+## Using the UI
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+1. **Add Bookmark**: Click "Add Bookmark" button, fill in URL and title (tags/notes optional)
+2. **Search**: Type in the search box to filter bookmarks by keyword
+3. **Filter**: Use status dropdown to show INBOX or DONE bookmarks
+4. **Edit**: Click "Edit" button on any bookmark card
+5. **Delete**: Click "Delete" button (confirmation required)
+6. **Mark Done**: Edit bookmark and change status to DONE
 
-## 👤 Author
+## Example cURL Commands
 
-Built with ☕ by Hashim Ali
+### Create a bookmark
+```bash
+curl -X POST http://localhost:8888/api/bookmarks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "GitHub",
+    "url": "https://github.com",
+    "tags": "development,git",
+    "notes": "Source code hosting"
+  }'
+```
 
-## 🤝 Contributing
+### Get all bookmarks
+```bash
+curl http://localhost:8888/api/bookmarks
+```
 
-Contributions, issues, and feature requests are welcome!
+### Search bookmarks
+```bash
+curl "http://localhost:8888/api/bookmarks?search=github"
+```
 
----
+### Filter by status
+```bash
+curl "http://localhost:8888/api/bookmarks?status=INBOX"
+```
 
-**Happy Bookmarking! 📚✨**
+### Update bookmark
+```bash
+curl -X PUT http://localhost:8888/api/bookmarks/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "GitHub - Updated",
+    "url": "https://github.com",
+    "tags": "dev,git,code",
+    "notes": "Updated notes",
+    "status": "DONE"
+  }'
+```
+
+### Delete bookmark
+```bash
+curl -X DELETE http://localhost:8888/api/bookmarks/1
+```
+
+## License
+
+MIT License - see LICENSE file for details.
